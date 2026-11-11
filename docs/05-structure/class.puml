@@ -1,0 +1,75 @@
+@startuml class
+title Оценка качества обслуживания: диаграмма классов
+skinparam classAttributeIconSize 0
+hide empty members
+
+package "Доменная модель" {
+  class User <<entity>> {
+    +id: int
+    +email: string
+    -passwordHash: string
+    +role: Role
+    +isActive: bool
+  }
+  class Employee <<entity>> {
+    +id: int
+    +lastName: string
+    +firstName: string
+    +position: string
+    +fullName(): string
+  }
+  class ServiceCategory <<entity>> {
+    +id: int
+    +name: string
+    +description: ?string
+  }
+  class Service <<entity>> {
+    +id: int
+    +name: string
+    +description: ?string
+    +isActive: bool
+    +averageRating(): float
+  }
+  class Review <<entity>> {
+    +id: int
+    +rating: int
+    +text: ?string
+    +createdAt: datetime
+    +isPositive(): bool
+  }
+  enum Role {
+    client
+    manager
+    employee
+    admin
+  }
+}
+
+ServiceCategory "1" o-- "0..*" Service : входит в >
+Service "1" *-- "0..*" Review : содержит >
+User "1" -- "0..*" Review : пишет >
+Employee "1" -- "0..*" Service : оказывает >
+Employee "1" -- "0..1" User : учётная запись
+User ..> Role
+
+package "Приложение (src/)" {
+  class ReviewController {
+    -repo: ReviewRepository
+    +store(serviceId: int): void
+    -checkAccess(): void
+  }
+  class ReviewRepository {
+    -db: Database
+    +findByUserAndService(userId: int, serviceId: int): ?array
+    +create(userId: int, serviceId: int, rating: int, text: ?string): int
+  }
+  class Database {
+    -pdo: PDO
+    +pdo(): PDO
+  }
+}
+
+ReviewController --> ReviewRepository
+ReviewRepository --> Database
+ReviewRepository ..> Review : читает/пишет
+@enduml

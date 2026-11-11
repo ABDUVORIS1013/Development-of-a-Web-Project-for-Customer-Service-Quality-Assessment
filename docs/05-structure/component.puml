@@ -1,0 +1,43 @@
+@startuml component
+title Оценка качества обслуживания: компоненты (MVC, три уровня)
+
+node "Клиент" {
+  [Браузер\n(HTML, Bootstrap 5.3, script.js)] as Browser
+}
+
+node "Веб-сервер (Apache в XAMPP / Nginx + PHP-FPM)" {
+  package "Уровень представления" {
+    [public/index.php\n(front controller)] as Front
+    [views/*.php\n(шаблоны)] as Views
+    [Core\\View] as View
+  }
+  package "Уровень логики" {
+    [Core\\Router] as Router
+    [Controllers\n(Service, Review, Category,\nAuth, Dashboard, Admin)] as Controllers
+    [Core\\Auth, Session,\nCsrf, Validator] as Services
+  }
+  package "Уровень доступа к данным" {
+    [Repositories\n(Service, Review, Category,\nEmployee, User)] as Repos
+    [Core\\Database\n(PDO)] as Db
+  }
+}
+
+database "MySQL / MariaDB\nservice_quality" as MySQL
+
+Browser --> Front : HTTP GET /services (HTML)
+Browser ..> Front : HTTP POST /services/15/reviews
+Front --> Router
+Router --> Controllers
+Controllers --> Services
+Controllers --> Repos
+Controllers --> View
+View --> Views : HTML
+Repos --> Db
+Db --> MySQL : PDO, TCP 3306
+
+legend right
+  Model = Repositories + Database
+  View = Core\\View + views/*.php
+  Controller = Controllers (через Router)
+endlegend
+@enduml
