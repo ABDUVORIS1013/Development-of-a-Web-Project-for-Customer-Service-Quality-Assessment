@@ -1,0 +1,54 @@
+@startuml use-case
+left to right direction
+title Оценка качества обслуживания: варианты использования
+
+actor "Клиент\n(client)" as Client
+actor "Менеджер\n(manager)" as Manager
+actor "Сотрудник\n(employee)" as Employee
+actor "Администратор\n(admin)" as Admin
+
+rectangle "Система оценки качества обслуживания" {
+  ' ФТ-01
+  usecase "Зарегистрироваться" as UC1
+  ' ФТ-02
+  usecase "Войти в систему" as UC2
+  ' ФТ-03
+  usecase "Просмотреть список услуг" as UC3
+  ' ФТ-04
+  usecase "Выбрать услугу" as UC4
+  ' ФТ-05
+  usecase "Оценить качество обслуживания" as UC5
+  ' ФТ-06
+  usecase "Оставить текстовый отзыв" as UC6
+  ' ФТ-07 (Should)
+  usecase "Просмотреть свои оценки и отзывы" as UC11
+  ' ФТ-08 (Must)
+  usecase "Просмотреть оценки и отзывы" as UC7
+  ' ФТ-09 (Should)
+  usecase "Фильтровать отзывы по услуге и периоду" as UC12
+  ' ФТ-10
+  usecase "Просмотреть статистику и средний рейтинг" as UC8
+  ' ФТ-11
+  usecase "Управлять услугами" as UC9
+  ' ФТ-12
+  usecase "Просмотреть результаты своих услуг" as UC10
+}
+
+Client --> UC1
+Client --> UC2
+Client --> UC3
+Client --> UC5
+Client --> UC11
+Manager --> UC2
+Manager --> UC7
+Manager --> UC8
+Employee --> UC2
+Employee --> UC10
+Admin --> UC2
+Admin --> UC9
+
+UC5 ..> UC4 : <<include>>
+UC6 ..> UC5 : <<extend>>
+UC12 ..> UC7 : <<extend>>
+
+@enduml

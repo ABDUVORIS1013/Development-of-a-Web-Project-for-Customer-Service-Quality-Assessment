@@ -1,0 +1,28 @@
+@startuml sequence-review
+title Отправка отзыва клиентом
+
+actor "Клиент\n(client)" as C
+participant "Браузер" as B
+participant "index.php\n+ Router" as R
+participant "ReviewController" as Ctrl
+participant "ReviewRepository" as Repo
+database "MySQL\nservice_quality" as DB
+
+C -> B : заполняет форму и нажимает «Отправить»
+B -> R : POST /services/15/reviews (rating, text, csrf_token)
+R -> Ctrl : store(15)
+Ctrl -> Ctrl : проверить роль client и CSRF
+Ctrl -> Repo : findByUserAndService(userId, 15)
+Repo -> DB : SELECT * FROM reviews\nWHERE user_id = ? AND service_id = ?
+DB --> Repo : строка отзыва или пусто
+Repo --> Ctrl : отзыв или null
+alt оценка 1-5 и отзыва ещё нет
+  Ctrl -> Repo : create(userId, 15, rating, text)
+  Repo -> DB : INSERT INTO reviews\n(user_id, service_id, rating, text)\nVALUES (?, ?, ?, ?)
+  DB --> Repo : id нового отзыва
+  Ctrl --> B : 302 -> /services/15 («Отзыв сохранён»)
+else оценка вне 1-5 или отзыв уже есть
+  Ctrl --> B : 422 Unprocessable Entity (ошибка валидации)
+end
+B --> C : страница услуги с сообщением
+@enduml
