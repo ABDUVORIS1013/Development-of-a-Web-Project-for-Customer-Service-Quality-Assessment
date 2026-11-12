@@ -1,0 +1,66 @@
+@startuml er-diagram
+title Оценка качества обслуживания: логическая модель (ER)
+
+hide circle
+skinparam linetype ortho
+
+entity users {
+  * id : INT <<PK>>
+  -
+  * email : VARCHAR(120) <<UQ>>
+  * password_hash : VARCHAR(255)
+  * role : ENUM
+  * is_active : TINYINT(1)
+}
+
+entity employees {
+  * id : INT <<PK>>
+  -
+  * last_name : VARCHAR(60)
+  * first_name : VARCHAR(60)
+  * position : VARCHAR(100)
+  user_id : INT <<FK, UQ>>
+}
+
+entity service_categories {
+  * id : INT <<PK>>
+  -
+  * name : VARCHAR(100) <<UQ>>
+  description : TEXT
+}
+
+entity services {
+  * id : INT <<PK>>
+  -
+  * category_id : INT <<FK>>
+  * name : VARCHAR(150)
+  description : TEXT
+  * is_active : TINYINT(1)
+}
+
+entity reviews {
+  * id : INT <<PK>>
+  -
+  * user_id : INT <<FK>>
+  * service_id : INT <<FK>>
+  * rating : INT
+  text : TEXT
+  * created_at : DATETIME
+}
+
+entity favorites {
+  * id : INT <<PK>>
+  -
+  * user_id : INT <<FK>>
+  * service_id : INT <<FK>>
+}
+
+' Связи
+service_categories ||--o{ services
+services ||--o{ reviews
+users ||--o{ reviews
+users ||--o| employees
+users ||--o{ favorites
+services ||--o{ favorites
+
+@enduml
