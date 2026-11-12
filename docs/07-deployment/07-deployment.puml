@@ -1,0 +1,26 @@
+@startuml deployment
+title Оценка качества услуг: диаграмма развёртывания
+
+node "ПК пользователя" as pc {
+  artifact "Браузер\n(Chrome / Firefox)" as browser
+}
+
+node "Linux VDS (Ubuntu 24.04)" as vds {
+  node "Nginx 1.24" as nginx {
+    artifact "deploy/nginx.conf" as nconf
+  }
+  node "PHP-FPM 8.2" as fpm {
+    artifact "service_quality/\n(public/, src/, views/)" as app
+    artifact "config/config.php\n(.env)" as cfg
+  }
+  database "MariaDB 10.11\nservice_quality (utf8mb4)" as db
+  folder "public/uploads/\n(фото, аватарки)" as uploads
+}
+
+browser --> nginx : HTTPS\n:443
+nginx --> fpm : FastCGI\nunix:/run/php/php8.2-fpm.sock
+fpm --> db : PDO MySQL\n127.0.0.1:3306
+app ..> uploads : запись файлов
+nginx ..> uploads : отдача статики
+
+@enduml
